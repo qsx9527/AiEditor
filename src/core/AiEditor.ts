@@ -211,8 +211,8 @@ export class AiEditor {
         this.mainEl.style.flexGrow = "1";
         this.mainEl.style.overflow = "auto";
 
-        this.header = document.createElement("aie-header") as Header;
-        this.footer = document.createElement("aie-footer") as Footer;
+        this.header = new Header();
+        this.footer = new Footer();
 
         this.eventComponents.push(this.header);
         this.eventComponents.push(this.footer);
@@ -397,7 +397,8 @@ export class AiEditor {
     }
 
     setContent(content: string) {
-        this.focus().clear().insert(content);
+        // this.focus().clear().insert(content); 原实现方法，导致空表格不能再次打开，应是空表格不能用insertContent插入
+        this.focus().clear().innerEditor.commands.setContent(content);
         return this;
     }
 

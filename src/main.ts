@@ -1,5 +1,5 @@
 import { AiEditor } from "./core/AiEditor.ts";
-import { config } from "./spark.ts";
+// import { config } from "./spark.ts";
 // @ts-ignore
 window.aiEditor = new AiEditor({
     element: "#aiEditor",
@@ -14,7 +14,7 @@ window.aiEditor = new AiEditor({
     ai: {
         models: {
             spark: {
-                ...config
+                // ...config
             },
         },
         // bubblePanelEnable:false,
