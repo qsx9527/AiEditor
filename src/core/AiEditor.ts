@@ -398,7 +398,7 @@ export class AiEditor {
 
     setContent(content: string) {
         // this.focus().clear().insert(content); 原实现方法，导致空表格不能再次打开，应是空表格不能用insertContent插入
-        this.focus().clear().innerEditor.commands.setContent(content);
+        this.clear().innerEditor.commands.setContent(content);
         return this;
     }
 
