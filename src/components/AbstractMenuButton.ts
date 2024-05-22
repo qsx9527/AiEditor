@@ -18,6 +18,7 @@ export class AbstractMenuButton extends HTMLElement implements AiEditorEvent {
             const chain = this.editor?.chain();
             this.onClick(chain);
             chain?.run();
+            console.log('chain?.run();')
         })
     }
 

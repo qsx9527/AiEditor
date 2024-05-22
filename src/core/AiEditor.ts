@@ -71,6 +71,7 @@ export type AiEditorOptions = {
         autolink?: boolean,
         rel?: string,
         class?: string,
+        validate? : boolean,
     },
     uploader?: (file: File, uploadUrl: string, headers: Record<string, any>, formName: string) => Promise<Record<string, any>>,
     image?: {

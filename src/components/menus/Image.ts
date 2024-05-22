@@ -28,7 +28,7 @@ export class Image extends AbstractMenuButton {
                 const files = this.fileInput?.files;
                 if (files && files.length > 0) {
                     for (let file of files) {
-                        this.editor?.commands.uploadImage(file);
+                        this.editor?.commands.uploadImage(file, '');
                     }
                 }
                 (this.fileInput as any).value = "";

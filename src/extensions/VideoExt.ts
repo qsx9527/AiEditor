@@ -220,7 +220,7 @@ export const VideoExt = Node.create<VideoOptions>({
 
                         // add decoration
                         if (action && action.type === "add") {
-                            set = set.add(tr.doc, [createMediaDecoration(action)]);
+                            set = set.add(tr.doc, [createMediaDecoration(action, editor, actionKey)]);
                         }
                         // remove decoration
                         else if (action && action.type === "remove") {

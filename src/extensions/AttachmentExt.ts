@@ -134,7 +134,7 @@ export const AttachmentExt = Extension.create<AttachmentOptions>({
 
                         // add decoration
                         if (action && action.type === "add") {
-                            set = set.add(tr.doc, [createAttachmentDecoration(action)]);
+                            set = set.add(tr.doc, [createAttachmentDecoration(action, editor, actionKey)]);
                         }
                         // remove decoration
                         else if (action && action.type === "remove") {

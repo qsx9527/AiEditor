@@ -18,18 +18,18 @@ export class TextSelectionBubbleMenu extends AbstractBubbleMenu {
     constructor() {
         super();
         this.items = [
-            {
-                id: "ai",
-                title: t("ai"),
-                content: `
-                <div style="display: flex;height: 20px">
-                     <div style="line-height: 20px"> AI </div>
-                     <div style="width: 18px;height: 18px;display: inline-block" >
-                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path fill="none" d="M0 0h24v24H0z"></path><path d="M12 14L8 10H16L12 14Z"></path></svg>
-                     </div>
-                 </div>
-                `,
-            },
+            // {
+            //     id: "ai",
+            //     title: t("ai"),
+            //     content: `
+            //     <div style="display: flex;height: 20px">
+            //          <div style="line-height: 20px"> AI </div>
+            //          <div style="width: 18px;height: 18px;display: inline-block" >
+            //             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path fill="none" d="M0 0h24v24H0z"></path><path d="M12 14L8 10H16L12 14Z"></path></svg>
+            //          </div>
+            //      </div>
+            //     `,
+            // },
             {
                 id: "bold",
                 title: t("bold"),

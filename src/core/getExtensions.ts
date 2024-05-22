@@ -93,7 +93,8 @@ export const getExtensions = (editor: AiEditor, options: AiEditorOptions): Exten
                 HTMLAttributes: {
                     ref: options?.link?.rel,
                     class: options?.link?.class,
-                }
+                },
+         
             }),
             Superscript,
             Subscript,
@@ -132,7 +133,7 @@ export const getExtensions = (editor: AiEditor, options: AiEditorOptions): Exten
                 tightLists: true,            // No <p> inside <li> in markdown output
                 tightListClass: 'tight',     // Add class to <ul> allowing you to remove <p> margins when tight
                 bulletListMarker: '-',       // <li> prefix in markdown output
-                linkify: true,              // Create links from "https://..." text
+                linkify: false,              // Create links from "https://..." text Link 转普通文本为链接 ‘test.sh’等非http开头也会被转为链接
                 breaks: true,               // New lines (\n) in markdown input are converted to <br>
                 transformPastedText: true,  // Allow to paste markdown text in the editor
                 transformCopiedText: false,  // Copied text is transformed to markdown

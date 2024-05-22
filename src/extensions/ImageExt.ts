@@ -14,7 +14,7 @@ import {UploaderEvent} from "../core/AiEditor.ts";
 declare module '@tiptap/core' {
     interface Commands<ReturnType> {
         Image: {
-            uploadImage: (file: File) => ReturnType;
+            uploadImage: (file: File, issue: string) => ReturnType;
         };
     }
 }
@@ -105,7 +105,7 @@ export const ImageExt = Image.extend<ImageOptions>({
             return {
                 ...this.parent?.(),
 
-                uploadImage: (file: File) => () => {
+                uploadImage: (file: File, issue  = '') => () => {
                     const headers = (typeof this.options.uploadHeaders === "object") ? this.options.uploadHeaders :
                         ((typeof this.options.uploadHeaders === "function") ? this.options.uploadHeaders() : {});
 
@@ -143,14 +143,22 @@ export const ImageExt = Image.extend<ImageOptions>({
                             }
 
                             if (json.errorCode === 0 && json.data && json.data.src) {
-                                const decorations = key.getState(this.editor.state) as DecorationSet;
-                                let found = decorations.find(void 0, void 0, spec => spec.id == id)
-                                view.dispatch(view.state.tr
-                                    .insert(found[0].from, schema.nodes.image.create({
-                                        src: json.data.src,
-                                        alt: json.data.alt,
-                                    }))
-                                    .setMeta(actionKey, {type: "remove", id}));
+                                if (issue == 'paste') {
+                                    view.dispatch(tr.setMeta(actionKey, {type: "remove", id}));
+                                    if (this.options.uploaderEvent && this.options.uploaderEvent.onSuccess) {
+                                        this.options.uploaderEvent.onSuccess(file, json);
+                                    }
+                                } else {
+                                    const decorations = key.getState(this.editor.state) as DecorationSet;
+                                    let found = decorations.find(void 0, void 0, spec => spec.id == id)
+                                    view.dispatch(view.state.tr
+                                        .insert(found[0].from, schema.nodes.image.create({
+                                            src: json.data.src,
+                                            alt: json.data.alt,
+                                        }))
+                                        .setMeta(actionKey, {type: "remove", id}));
+                                }
+                                
                             } else {
                                 view.dispatch(tr.setMeta(actionKey, {type: "remove", id}));
                                 if (this.options.uploaderEvent && this.options.uploaderEvent.onFailed) {
@@ -223,7 +231,13 @@ export const ImageExt = Image.extend<ImageOptions>({
 
                                 // add decoration
                                 if (action.type === "add") {
-                                    set = set.add(tr.doc, [createMediaDecoration(action)]);
+                                    set = set.add(tr.doc, [createMediaDecoration(action, editor, actionKey)]);
+
+                                    const button = document.getElementById("cancel-upload-media");
+                                    button?.addEventListener("click", () => {
+                                       // 移除创建的元素
+                                    //    placeholder.remove();
+                                    });
                                 }
                                 // remove decoration
                                 else if (action.type === "remove") {
@@ -245,10 +259,10 @@ export const ImageExt = Image.extend<ImageOptions>({
                             const items = Array.from(event.clipboardData?.items || []);
                             for (const item of items) {
                                 if (item.type.indexOf("image") === 0) {
-                                    event.preventDefault();
+                                    // event.preventDefault();
                                     const file = item.getAsFile();
                                     if (file) {
-                                        this.editor.commands.uploadImage(file);
+                                        this.editor.commands.uploadImage(file, 'paste');
                                     }
                                 }
                             }
@@ -275,7 +289,7 @@ export const ImageExt = Image.extend<ImageOptions>({
                                 dispatch(tr.setSelection(TextSelection.create(doc, coordinates!.pos)).scrollIntoView())
 
                                 images.forEach(image => {
-                                    editor.commands.uploadImage(image);
+                                    editor.commands.uploadImage(image, '');
                                 })
 
                                 return true
