@@ -15,7 +15,6 @@ export type LanguageItem = {
 };
 
 export const languages = [
-    {name: 'Auto', value: 'auto'},
     {name: 'Plain Text', value: 'plaintext', alias: ['text', 'txt']},
     {name: 'Bash', value: 'bash', alias: ['sh']},
     {name: 'BASIC', value: 'basic', alias: []},
