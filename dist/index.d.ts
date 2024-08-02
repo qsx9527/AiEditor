@@ -4,6 +4,7 @@ import { EditorEvents } from '@tiptap/core';
 import { EditorOptions } from '@tiptap/core';
 import { Extensions } from '@tiptap/core';
 import { Fragment } from 'prosemirror-model';
+import { Instance } from 'tippy.js';
 import { JSONContent } from '@tiptap/core';
 
 declare class AbstractMenuButton extends HTMLElement implements AiEditorEvent {
@@ -19,9 +20,21 @@ declare class AbstractMenuButton extends HTMLElement implements AiEditorEvent {
     onActive(editor: Editor): boolean;
 }
 
-declare interface AiClient {
-    start: (message: string) => void;
+export declare type AIBubbleMenuItem = {
+    prompt: string;
+    icon: string;
+    title: string;
+} | string;
+
+export declare interface AiClient {
+    start: (payload: string) => void;
     stop: () => void;
+}
+
+export declare interface AiClientListener {
+    onStart: (aiClient: AiClient) => void;
+    onStop: () => void;
+    onMessage: (bodyString: string) => void;
 }
 
 export declare class AiEditor {
@@ -38,13 +51,13 @@ export declare class AiEditor {
     private initInnerEditor;
     private onCreate;
     private onTransaction;
-    private onDestroy;
     getHtml(): string;
     getJson(): JSONContent;
     getText(): string;
     getSelectedText(): string;
     getMarkdown(): any;
     getOptions(): AiEditorOptions;
+    getAttributes(name: string): Record<string, any>;
     getOutline(): any[];
     focus(): this;
     focusPos(pos: number): this;
@@ -78,20 +91,26 @@ export declare type AiEditorOptions = {
     i18n?: Record<string, Record<string, string>>;
     placeholder?: string;
     theme?: "light" | "dark";
-    cbName?: string;
-    cbUrl?: string;
     onMentionQuery?: (query: string) => any[] | Promise<any[]>;
     onCreateBefore?: (editor: AiEditor, extensions: Extensions) => void | Extensions;
-    onDestroy?: (editor: AiEditor) => void;
     onCreated?: (editor: AiEditor) => void;
     onChange?: (editor: AiEditor) => void;
+    onFocus?: (editor: AiEditor) => void;
+    onBlur?: (editor: AiEditor) => void;
+    onDestroy?: (editor: AiEditor) => void;
     onSave?: (editor: AiEditor) => boolean;
     toolbarKeys?: (string | CustomMenu)[];
+    draggable?: boolean;
+    textSelectionBubbleMenu?: {
+        enable?: boolean;
+        elementTagName?: string;
+        items?: (string | BubbleMenuItem)[];
+    };
     link?: {
         autolink?: boolean;
         rel?: string;
         class?: string;
-        validate?: boolean;
+        bubbleMenuItems?: (string | BubbleMenuItem)[];
     };
     uploader?: (file: File, uploadUrl: string, headers: Record<string, any>, formName: string) => Promise<Record<string, any>>;
     image?: {
@@ -103,6 +122,7 @@ export declare type AiEditorOptions = {
         uploaderEvent?: UploaderEvent;
         defaultSize?: number;
         allowBase64?: boolean;
+        bubbleMenuItems?: (string | BubbleMenuItem)[];
     };
     video?: {
         customMenuInvoke?: (editor: AiEditor) => void;
@@ -129,13 +149,14 @@ export declare type AiEditorOptions = {
     ai?: AiGlobalConfig;
 };
 
-declare interface AiGlobalConfig {
+export declare interface AiGlobalConfig {
     models: Record<string, AiModelConfig>;
     modelFactory?: AiModelFactory;
     onTokenConsume?: (modelName: string, modelConfig: AiModelConfig, count: number) => void;
-    onCreateClientUrl?: (modelName: string, modelConfig: AiModelConfig, onFinished: (url: string) => void) => void;
+    onCreateClientUrl?: (modelName: string, modelConfig: AiModelConfig, onSuccess: (url: string) => void, onFailure: () => void) => void;
     bubblePanelEnable?: boolean;
     bubblePanelModel?: string;
+    bubblePanelMenus?: AIBubbleMenuItem[];
     menus?: AiMenu[];
     commands?: AiMenu[];
     codeBlock?: {
@@ -150,7 +171,7 @@ declare interface AiGlobalConfig {
     };
 }
 
-declare interface AiMenu {
+export declare interface AiMenu {
     icon: string;
     name: string;
     prompt?: string;
@@ -159,25 +180,26 @@ declare interface AiMenu {
     children?: AiMenu[];
 }
 
-declare interface AiMessage {
+export declare interface AiMessage {
     role: string;
     content: string;
     index: number;
     status: 0 | 1 | 2;
 }
 
-declare interface AiMessageListener {
+export declare interface AiMessageListener {
     onStart: (aiClient: AiClient) => void;
     onStop: () => void;
     onMessage: (message: AiMessage) => void;
 }
 
 declare abstract class AiModel {
-    editor: Editor;
+    editor: InnerEditor;
     globalConfig: AiGlobalConfig;
     aiModelName: string;
     aiModelConfig: AiModelConfig;
-    constructor(editor: Editor, globalConfig: AiGlobalConfig, aiModelName: string);
+    protected constructor(editor: InnerEditor, globalConfig: AiGlobalConfig, aiModelName: string);
+    chatWithPayload(payload: any, listener: AiMessageListener): void;
     chat(selectedText: string, prompt: string, listener: AiMessageListener): void;
     /**
      * 创建客户端链接 URL
@@ -189,23 +211,47 @@ declare abstract class AiModel {
     abstract createAiClient(url: string, listener: AiMessageListener): AiClient;
     /**
      * 封装消息，把 prompt 转换为协议需要的格式
-     * @param promptMessage
+     * @param prompt
      */
-    abstract wrapMessage(promptMessage: string): any;
+    abstract wrapPayload(prompt: string): any;
 }
 
 declare interface AiModelConfig {
 }
 
-declare interface AiModelFactory {
+export declare interface AiModelFactory {
     create: (name: string, editor: Editor, globalConfig: AiGlobalConfig) => AiModel;
 }
 
 export declare class AiModelManager {
     private static models;
-    static init(editor: Editor, globalConfig: AiGlobalConfig): void;
+    static init(editor: InnerEditor, globalConfig: AiGlobalConfig): void;
     static get(modelName: string): AiModel;
     static set(modelName: string, aiModel: AiModel): void;
+}
+
+export declare type BubbleMenuItem = {
+    id: string;
+    title?: string;
+    icon: string;
+    holder?: any;
+    onInit?: (editor: AiEditor, tippyInstance: Instance, parentEle: HTMLElement) => any;
+    onClick?: (editor: AiEditor, tippyInstance: Instance, parentEle: HTMLElement, holder: any) => void;
+};
+
+export declare class CustomAiModel extends AiModel {
+    constructor(editor: InnerEditor, globalConfig: AiGlobalConfig);
+    createAiClient(url: string, listener: AiMessageListener): AiClient;
+    wrapPayload(promptMessage: string): string;
+    createAiClientUrl(): string;
+}
+
+export declare interface CustomAiModelConfig extends AiModelConfig {
+    url: (() => string) | string;
+    headers?: () => Record<string, any> | undefined;
+    wrapPayload: (prompt: string) => string;
+    parseMessage: (bodyString: string) => AiMessage | undefined;
+    protocol: "sse" | "websocket";
 }
 
 export declare interface CustomMenu {
@@ -220,7 +266,9 @@ export declare interface CustomMenu {
 
 declare class Footer extends HTMLElement implements AiEditorEvent {
     count: number;
+    draggable: boolean;
     constructor();
+    initDraggable(draggable?: boolean): void;
     updateCharacters(): void;
     onCreate(props: EditorEvents["create"], _: AiEditorOptions): void;
     onTransaction(props: EditorEvents["transaction"]): void;
@@ -236,8 +284,7 @@ declare class Header extends HTMLElement implements AiEditorEvent {
 
 export declare class InnerEditor extends Editor {
     aiEditor: AiEditor;
-    userOptions: AiEditorOptions;
-    constructor(aiEditor: AiEditor, editorOptions: AiEditorOptions, options?: Partial<EditorOptions>);
+    constructor(aiEditor: AiEditor, options?: Partial<EditorOptions>);
     parseHtml(html: string): Fragment;
     parseMarkdown(markdown: string): Fragment;
 }
@@ -247,12 +294,33 @@ export declare interface NameAndValue {
     value: any;
 }
 
-export declare class SparkAiModel extends AiModel {
-    constructor(editor: Editor, globalConfig: AiGlobalConfig);
+export declare class OpenaiAiModel extends AiModel {
+    constructor(editor: InnerEditor, globalConfig: AiGlobalConfig);
     createAiClient(url: string, listener: AiMessageListener): AiClient;
-    wrapMessage(promptMessage: string): string;
+    wrapPayload(prompt: string): string;
+    createAiClientUrl(): string;
+}
+
+export declare interface OpenaiModelConfig extends AiModelConfig {
+    endpoint?: string;
+    apiKey: string;
+    model?: string;
+}
+
+export declare class SparkAiModel extends AiModel {
+    constructor(editor: InnerEditor, globalConfig: AiGlobalConfig);
+    createAiClient(url: string, listener: AiMessageListener): AiClient;
+    wrapPayload(promptMessage: string): string;
     private getDomain;
     createAiClientUrl(): string;
+}
+
+export declare interface SparkAiModelConfig extends AiModelConfig {
+    appId: string;
+    apiKey: string;
+    apiSecret: string;
+    protocol?: string;
+    version?: string;
 }
 
 export declare interface UploaderEvent {
@@ -260,6 +328,19 @@ export declare interface UploaderEvent {
     onSuccess?: (file: File, response: any) => any;
     onFailed?: (file: File, response: any) => void;
     onError?: (file: File, err: any) => void;
+}
+
+export declare class WenXinAiModel extends AiModel {
+    constructor(editor: InnerEditor, globalConfig: AiGlobalConfig);
+    createAiClient(url: string, listener: AiMessageListener): AiClient;
+    wrapPayload(prompt: string): string;
+    createAiClientUrl(): string;
+}
+
+export declare interface WenXinAiModelConfig extends AiModelConfig {
+    access_token: string;
+    protocol?: string;
+    version?: string;
 }
 
 export { }

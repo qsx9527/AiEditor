@@ -7,6 +7,7 @@ import {NodeSelection, Selection} from '@tiptap/pm/state';
 import {Node} from '@tiptap/pm/model';
 import {AiModelManager} from "../ai/AiModelManager.ts";
 import {DefaultAiMessageListener} from "../ai/core/DefaultAiMessageListener.ts";
+import {t} from "i18next";
 
 export type LanguageItem = {
     name: string;
@@ -373,7 +374,7 @@ export const CodeBlockExt = CodeBlockLowlight.extend<MyCodeBlockLowlightOptions>
             container.classList.add("aie-codeblock-wrapper")
             const {language} = props.node.attrs;
 
-            if (!this.editor.isEditable){
+            if (!this.editor.isEditable) {
                 container.innerHTML = `
                 <div class="aie-codeblock-tools" contenteditable="false">
                     <div class="aie-codeblock-tools-lang" contenteditable="false" style="margin-right: 10px">${language || this.options.defaultLanguage}</div>
@@ -400,8 +401,8 @@ export const CodeBlockExt = CodeBlockLowlight.extend<MyCodeBlockLowlightOptions>
 
             container.innerHTML = `
                 <div class="aie-codeblock-tools" contenteditable="false">
-                    ${this.options.codeCommentsAi ? '<div class="aie-codeblock-tools-comments">自动注释</div>' : ''}
-                    ${this.options.codeExplainAi ? '<div class="aie-codeblock-tools-explain">代码解释</div>' : ''}
+                    ${this.options.codeCommentsAi ? '<div class="aie-codeblock-tools-comments">' + t("codeblock-ai-auto-comment") + '</div>' : ''}
+                    ${this.options.codeExplainAi ? '<div class="aie-codeblock-tools-explain">' + t("codeblock-ai-code-explain") + '</div>' : ''}
                     <div class="aie-codeblock-tools-lang" contenteditable="false"><span>${language || this.options.defaultLanguage}</span><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 16L6 10H18L12 16Z"></path></svg></div>
                 </div>
                 <pre class="hljs"><code></code></pre>
@@ -453,8 +454,8 @@ export const CodeBlockExt = CodeBlockLowlight.extend<MyCodeBlockLowlightOptions>
                     // props.editor.chain().addCodeComments(props.node, (props.getPos as Function)());
 
                     const coordinates = props.editor.view.posAtCoords({left: e.clientX, top: e.clientY})
-                    const clodeBlock = props.editor.state.doc.resolve(coordinates!.pos).parent;
-                    props.editor.chain().addCodeComments(clodeBlock, coordinates!.pos);
+                    const codeBlock = props.editor.state.doc.resolve(coordinates!.pos).parent;
+                    props.editor.chain().addCodeComments(codeBlock, coordinates!.pos);
                 });
 
             container.querySelector(".aie-codeblock-tools-explain")
@@ -463,8 +464,8 @@ export const CodeBlockExt = CodeBlockLowlight.extend<MyCodeBlockLowlightOptions>
                     // props.editor.chain().addCodeExplain(props.node, (props.getPos as Function)());
 
                     const coordinates = props.editor.view.posAtCoords({left: e.clientX, top: e.clientY})
-                    const clodeBlock = props.editor.state.doc.resolve(coordinates!.pos).parent;
-                    props.editor.chain().addCodeExplain(clodeBlock, coordinates!.pos);
+                    const codeBlock = props.editor.state.doc.resolve(coordinates!.pos).parent;
+                    props.editor.chain().addCodeExplain(codeBlock, coordinates!.pos);
                 });
 
             return {

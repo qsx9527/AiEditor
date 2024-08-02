@@ -34,6 +34,7 @@ AiEditor 提供的方法如下：
 - `getSelectedText()`： 获取当前编辑器选中的 `纯文本` 内容（不包含 html）。
 - `getMarkdown()`： 获取当前编辑器的获取 markdown 格式内容。
 - `getOptions()`： 获取当前编辑器的配置信息。
+- `getAttributes(name)`： 获取当前编辑器节点位置的节点（Node）或者标识（Mark）的属性，传入节点的名称。
 - `getOutline()`： 获得内容的目录，返回一个数组，内容格式如下：
 
 ```json
@@ -81,7 +82,9 @@ AiEditor 提供的方法如下：
 - `changeLang(lang)`： 切换当前编辑器的国际化语言，更多参考 《[国际化](../config/i18n.md)》章节。
 
 
-## 内容变化监听
+## 监听
+
+### 内容变化监听
 
 ```typescript
 const aiEditor = new AiEditor({
@@ -90,6 +93,55 @@ const aiEditor = new AiEditor({
     onChange:(aiEditor)=>{
         // 监听到用编辑器内容发生变化了，控制台打印编辑器的 html 内容...
         console.log(aiEditor.getHtml())
+    }
+})
+```
+
+### 获得焦点
+
+```typescript
+const aiEditor = new AiEditor({
+    element: "#aiEditor",
+    placeholder: "点击输入内容...",
+    onFocus:(aiEditor)=>{
+        console.log("获得焦点了....")
+    }
+})
+```
+
+### 失去焦点
+
+```typescript
+const aiEditor = new AiEditor({
+    element: "#aiEditor",
+    placeholder: "点击输入内容...",
+    onBlur:(aiEditor)=>{
+        console.log("失去焦点了....")
+    }
+})
+```
+
+
+### 实例被创建
+
+```typescript
+const aiEditor = new AiEditor({
+    element: "#aiEditor",
+    placeholder: "点击输入内容...",
+    onCreated:(aiEditor)=>{
+        console.log("AIEditor 创建了....")
+    }
+})
+```
+
+### 实例被销毁
+
+```typescript
+const aiEditor = new AiEditor({
+    element: "#aiEditor",
+    placeholder: "点击输入内容...",
+    onDestroy:(aiEditor)=>{
+        console.log("AIEditor 被销毁了....")
     }
 })
 ```

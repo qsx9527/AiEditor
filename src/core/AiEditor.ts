@@ -15,6 +15,7 @@ import {DOMParser} from "@tiptap/pm/model";
 import {AiGlobalConfig} from "../ai/AiGlobalConfig.ts";
 import {AiModelManager} from "../ai/AiModelManager.ts";
 import {defineCustomElement} from "../commons/defineCustomElement.ts";
+import {BubbleMenuItem} from "../components/bubbles/types.ts";
 
 
 defineCustomElement('aie-header', Header);
@@ -72,20 +73,26 @@ export type AiEditorOptions = {
     i18n?: Record<string, Record<string, string>>,
     placeholder?: string,
     theme?: "light" | "dark",
-    cbName?: string,
-    cbUrl?: string
     onMentionQuery?: (query: string) => any[] | Promise<any[]>,
     onCreateBefore?: (editor: AiEditor, extensions: Extensions) => void | Extensions,
-    onDestroy?: (editor: AiEditor) => void,
     onCreated?: (editor: AiEditor) => void,
     onChange?: (editor: AiEditor) => void,
+    onFocus?: (editor: AiEditor) => void,
+    onBlur?: (editor: AiEditor) => void,
+    onDestroy?: (editor: AiEditor) => void,
     onSave?: (editor: AiEditor) => boolean,
     toolbarKeys?: (string | CustomMenu)[],
+    draggable?: boolean,
+    textSelectionBubbleMenu?: {
+        enable?: boolean,
+        elementTagName?: string,
+        items?: (string | BubbleMenuItem)[],
+    },
     link?: {
         autolink?: boolean,
         rel?: string,
         class?: string,
-        validate? : boolean,
+        bubbleMenuItems?: (string | BubbleMenuItem)[],
     },
     uploader?: (file: File, uploadUrl: string, headers: Record<string, any>, formName: string) => Promise<Record<string, any>>,
     image?: {
@@ -97,6 +104,7 @@ export type AiEditorOptions = {
         uploaderEvent?: UploaderEvent,
         defaultSize?: number,
         allowBase64?: boolean,
+        bubbleMenuItems?: (string | BubbleMenuItem)[],
     },
     video?: {
         customMenuInvoke?: (editor: AiEditor) => void;
@@ -128,18 +136,17 @@ const defaultOptions: Partial<AiEditorOptions> = {
     lang: "zh",
     contentRetentionKey: "ai-editor-content",
     editable: true,
+    draggable: true,
     placeholder: "",
 }
 
 export class InnerEditor extends Tiptap {
 
     aiEditor: AiEditor;
-    userOptions: AiEditorOptions;
 
-    constructor(aiEditor: AiEditor, editorOptions: AiEditorOptions, options: Partial<EditorOptions> = {}) {
+    constructor(aiEditor: AiEditor, options: Partial<EditorOptions> = {}) {
         super(options);
         this.aiEditor = aiEditor;
-        this.userOptions = editorOptions;
     }
 
     parseHtml(html: string) {
@@ -228,6 +235,7 @@ export class AiEditor {
 
         this.header = new Header();
         this.footer = new Footer();
+        this.footer.initDraggable(this.options.draggable)
 
         this.eventComponents.push(this.header);
         this.eventComponents.push(this.footer);
@@ -246,14 +254,16 @@ export class AiEditor {
             if (!newExtensions) extensions = newExtensions!;
         }
 
-        this.innerEditor = new InnerEditor(this, this.options, {
+        this.innerEditor = new InnerEditor(this, {
             element: this.mainEl,
             content: content,
             editable: this.options.editable,
             extensions: extensions,
             onCreate: (props) => this.onCreate(props),
             onTransaction: (props) => this.onTransaction(props),
-            onDestroy: () => this.onDestroy,
+            onFocus: () => this.options?.onFocus?.(this),
+            onBlur: () => this.options?.onBlur?.(this),
+            onDestroy: () => this.options?.onDestroy?.(this),
             editorProps: {
                 attributes: {
                     class: "aie-content"
@@ -287,19 +297,19 @@ export class AiEditor {
         }
     }
 
-    private onTransaction(props: EditorEvents['transaction']) {
-        this.eventComponents.forEach((zEvent) => {
-            zEvent.onTransaction && zEvent.onTransaction(props);
+    private onTransaction(transEvent: EditorEvents['transaction']) {
+        this.eventComponents.forEach((component) => {
+            component.onTransaction && component.onTransaction(transEvent);
         });
 
-        if (props.transaction.getMeta("ignoreChanged")) {
+        if (transEvent.transaction.getMeta("ignoreChanged")) {
             return;
         }
 
-        if (props.transaction.docChanged && this.options.onChange) {
+        if (transEvent.transaction.docChanged && this.options.onChange) {
             this.options.onChange(this);
         }
-        if (props.transaction.docChanged && this.options.contentRetention && this.options.contentRetentionKey) {
+        if (transEvent.transaction.docChanged && this.options.contentRetention && this.options.contentRetentionKey) {
             const html = this.innerEditor.getHTML();
             if ("<p></p>" === html || "" === html) {
                 localStorage.removeItem(this.options.contentRetentionKey);
@@ -307,9 +317,6 @@ export class AiEditor {
                 localStorage.setItem(this.options.contentRetentionKey, JSON.stringify(this.innerEditor.getJSON()))
             }
         }
-    }
-
-    private onDestroy() {
     }
 
     getHtml() {
@@ -336,6 +343,10 @@ export class AiEditor {
 
     getOptions() {
         return this.options;
+    }
+
+    getAttributes(name: string) {
+        return this.innerEditor.getAttributes(name);
     }
 
     getOutline() {
@@ -440,7 +451,7 @@ export class AiEditor {
     }
 
     destroy() {
-        this.options.onDestroy && this.options.onDestroy(this);
+        this.options.onDestroy?.(this);
         this.innerEditor.destroy();
         this.eventComponents = [];
 

@@ -3,6 +3,7 @@ export const zh  =  {
     "default":"默认",
     "delete": "删除",
     "confirm": "确定",
+    "cancel": "取消",
 
     //menu tips
     "undo": "撤销",
@@ -18,6 +19,7 @@ export const zh  =  {
     "underline": "下划线",
     "strike": "删除线",
     "link": "链接",
+    "source-code": "源代码",
     "code": "行内代码",
     "subscript": "下标",
     "superscript": "上标",
@@ -92,4 +94,29 @@ export const zh  =  {
     ////font
     "default-font-size":"字号",
     "default-font-family":"默认字体",
+
+    ////code block
+    "codeblock-ai-auto-comment":"自动注释",
+    "codeblock-ai-code-explain":"代码解释",
+
+    //// ai
+    "placeholder-tell-ai-what-to-do-next":"告诉 AI 下一步应该如何？比如：帮我翻译成英语",
+    "tip-you-can-enter-text-above-or-select-the-operation-below":"提示：您可以在上面输入文字或者选择下方的操作",
+    "you-can-do-the-following":"您可以进行以下操作:",
+    "improve-writing":"改进写作",
+    "check-spelling-and-grammar":"检查拼写和语法",
+    "make-shorter":"简化内容",
+    "make-longer":"丰富内容",
+    "translate":"翻译",
+    "summarize":"总结",
+    "ai-append":"追加",
+    "ai-replace":"替换",
+    "ai-cancel":"舍弃",
+
+    ///ai menus
+    "ai-continuation":"AI 续写",
+    "ai-optimization":"AI 优化",
+    "ai-proofreading":"AI 校对",
+    "ai-translation":"AI 翻译",
+
 }

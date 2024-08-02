@@ -2,6 +2,22 @@
 
 
 ## 代码示例
+使用 ChatGPT
+
+```ts
+new AiEditor({
+    element: "#aiEditor",
+    ai: {
+        models: {
+            openai: {
+                apiKey:"sk-alQ96zbDn*****"
+            } as OpenaiModelConfig
+        }
+    },
+})
+```
+
+或者星火大模型
 
 ```typescript
 new AiEditor({
@@ -11,17 +27,17 @@ new AiEditor({
             spark:{
                 appId:"****",
                 apiKey:"****",
-                apiSecret:"****"
+                apiSecret:"****",
+                version:"v3.5" //支持 v2.1 v3.1 v3.5
             }
         },
         bubblePanelEnable: true,
-        bubblePanelModel: "spark",
         onCreateClientUrl: "...."
     },
 })
 ```
 
-- **models**: 模型配置（目前暂时只支持科大讯飞的星火大模型）
+- **models**: 模型配置，支持 `openai`, `spark`, `wenxin`, `custom`，具体参考：[这里](./llm.md)
 - **bubblePanelEnable**: 弹出框使用的 ai 模型名称
 - **bubblePanelModel**: 弹出框使用的 ai 模型名称
 - **onCreateClientUrl**: 自定义 URL 签名算法，一般情况下，如果编辑器涉及内容对外开放，则需要配置 onCreateURL，用于通过 server 端对 url 签名生成通信 url。
@@ -39,7 +55,7 @@ version?: string,
 - **appId**：应用 ID。
 - **apiKey**：api Key。
 - **apiSecret**：api 秘钥。
-- **version**: 版本，默认为 v3.1。
+- **version**: 版本，默认为 v3.5  支持 v2.1、 3.1、  3.5。
 
 
 ## 服务端签名

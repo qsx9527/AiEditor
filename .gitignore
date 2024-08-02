@@ -18,6 +18,10 @@ aimp/
 /demos/vanilla-ts/dist/
 .history/
 
+dist
+package-lock.json
+yarn.lock
+
 # Editor directories and files
 .vscode/*
 !.vscode/extensions.json

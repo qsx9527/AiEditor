@@ -1,6 +1,76 @@
 # AiEditor ChangeLog
 
 
+## v1.0.11 20240702:
+- Added: Added onBlur and onFocus configurations for AIEditor #39
+- Added: Added the function of customizing the selected floating menu
+- Added: Added the function of AIEditor.getAttributes() method
+- Optimization: Refactored the international display of AI panel
+- Optimization: Refactored AbstractBubbleMenu.ts to make it simpler and easier to use
+- Fixed: Fixed the problem of multiple additions of Header under KeepAlive of Vue #37
+
+
+- 新增：新增 AIEditor 的 onBlur 和 onFocus 配置 #39
+- 新增：新增自定义选中的浮动菜单的功能
+- 新增：新增 AIEditor.getAttributes() 方法的功能
+- 优化：重构 AI 面板的国际化显示
+- 优化：重构 AbstractBubbleMenu.ts 使之更加简单易用
+- 修复：修复 Vue 的 KeepAlive 下 Header 多次添加的问题 #37
+
+
+
+## v1.0.10 20240620:
+- 新增：新增浮动菜单的开关和菜单项配置功能
+- 新增：新增链接的浮动菜单项配置功能
+- 新增：新增图片的浮动菜单项配置功能
+- 优化：重构 AI 模块，抛出更多的方法类，方便外部直接调用
+- 优化：重构 AbstractBubbleMenu.ts 使之更加简单易用
+- 文档：现在浮动菜单的相关配置功能
+
+
+
+## v1.0.8 20240613:
+- 新增：AiModel 添加 chatWithPayload 方法用于传入自定义的 ai 参数信息
+- 新增：源码编辑的功能菜单，及其配置。感谢 @jx
+- 新增：添加是否可以对整个编辑器拖拽放大缩小的开关配置
+- 优化：优化 a 标签在暗色主题下的样式问题，感谢 @lwleen
+- 优化：编辑的滚动条样式，感谢 @lwleen
+- 优化：移除无用的配置 cbName 和 cbUrl 
+
+
+
+## v1.0.6 20240607:
+- 新增：AI 大模型新增对 Openai 和 月之暗面 的支持
+- 新增：编辑元素新增对 Figure 和 Figcaption 元素的支持
+- 新增：AI Prompt 提示词自定义添加对 {content} 占位符的支持
+- 优化：修改星火大模型默认版本为 v3.5
+- 优化：重构自定义大模型 CustomAiModelConfig 的方法名称和参数
+- 优化：重命名 AI 模块里的某些方法和参数，使之更加通俗易懂
+- 优化：优化代码里的一些单词拼写错误
+- 优化：优化 AIEditor 内部的一些样式名称，防止产生可能的冲突
+
+
+
+## v1.0.4 20240528:
+- 新增：textSelectionBubbleMenu 添加开关配置的支持
+- 优化：在只读模式下，应该关闭掉选中文字菜单的弹出
+- 优化：当 AI 大模型配置错误的时候，给出更友好的错误提示
+- 优化：选中文字菜单时，自动判断弹出的菜单是否遮挡了顶部菜单，并在下方弹出
+- 优化：选中空白内容，但为选中任何文字时，错误的弹出操作菜单的问题
+- 优化：更新相关的依赖到最新版本
+- 修复：AI 菜单在某些场景下出现错位的问题，感谢 @monksoul
+- 文档：添加 React 对 AiEditor 的封装为组件的相关文档，感谢 @monksoul
+
+
+
+## v1.0.1 20240522:
+- 优化：默认 AIEditor 导出更多的类，方便用户开发
+- 修复：图片、附件、视频的 uploadFormName 配置无效的问题
+- 修复：CodeBlock 的菜单无法正切换国际化的问题
+- 文档：添加和各类 UI 框架集成的相关文档
+
+
+
 ## v1.0.0 20240329:
 - 新增：上传附件、图片、视频添加自定义 formName 的配置能力
 - 新增：选择文字内容后，弹出的 AI 菜单添加默认操作项的功能
