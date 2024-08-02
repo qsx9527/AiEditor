@@ -20,6 +20,20 @@ import {defineCustomElement} from "../commons/defineCustomElement.ts";
 defineCustomElement('aie-header', Header);
 defineCustomElement('aie-footer', Footer);
 
+
+export declare type JSONContent = {
+    type?: string;
+    attrs?: Record<string, any>;
+    content?: JSONContent[];
+    marks?: {
+        type: string;
+        attrs?: Record<string, any>;
+        [key: string]: any;
+    }[];
+    text?: string;
+    [key: string]: any;
+};
+
 export interface NameAndValue {
     name: string,
     value: any;
@@ -397,7 +411,7 @@ export class AiEditor {
         return this;
     }
 
-    setContent(content: string) {
+    setContent(content: string | JSONContent | JSONContent[] | null) {
         // this.focus().clear().insert(content); 原实现方法，导致空表格不能再次打开，应是空表格不能用insertContent插入
         this.clear().innerEditor.commands.setContent(content);
         return this;

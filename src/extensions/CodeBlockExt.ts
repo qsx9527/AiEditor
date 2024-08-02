@@ -403,11 +403,10 @@ export const CodeBlockExt = CodeBlockLowlight.extend<MyCodeBlockLowlightOptions>
                     ${this.options.codeCommentsAi ? '<div class="aie-codeblock-tools-comments">自动注释</div>' : ''}
                     ${this.options.codeExplainAi ? '<div class="aie-codeblock-tools-explain">代码解释</div>' : ''}
                     <div class="aie-codeblock-tools-lang" contenteditable="false"><span>${language || this.options.defaultLanguage}</span><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 16L6 10H18L12 16Z"></path></svg></div>
-                    <button style='border:none;cursor: pointer' class="aie-codeblock-tools-lang aie-codeblock-tools-copy-button">复制</button>
                 </div>
                 <pre class="hljs"><code></code></pre>
                 `
-     const copyButton = container.querySelector('.aie-codeblock-tools-copy-button')
+                const copyButton = container.querySelector('.aie-codeblock-tools-copy-button')
 
                 copyButton?.addEventListener('click', () => {
                     const codeContent = container?.querySelector('code')?.textContent

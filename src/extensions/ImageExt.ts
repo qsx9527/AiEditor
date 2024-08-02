@@ -134,6 +134,8 @@ export const ImageExt = Image.extend<ImageOptions>({
                             //process on success
                             if (this.options.uploaderEvent?.onSuccess) {
                                 const result = this.options.uploaderEvent.onSuccess(file, json);
+                                console.log('result:', result)
+                                console.log('json:', json)
                                 if (typeof result === "boolean" && !result) {
                                     return;
                                 }
@@ -143,20 +145,21 @@ export const ImageExt = Image.extend<ImageOptions>({
                             }
 
                             if (json.errorCode === 0 && json.data && json.data.src) {
+                                console.log('图片上传')
+                                const decorations = key.getState(this.editor.state) as DecorationSet;
+                                let found = decorations.find(void 0, void 0, spec => spec.id == id)
+                                view.dispatch(view.state.tr
+                                    .insert(found[0].from, schema.nodes.image.create({
+                                        src: json.data.src,
+                                        alt: json.data.alt,
+                                    }))
+                                    .setMeta(actionKey, {type: "remove", id}));
                                 if (issue == 'paste') {
-                                    view.dispatch(tr.setMeta(actionKey, {type: "remove", id}));
-                                    if (this.options.uploaderEvent && this.options.uploaderEvent.onSuccess) {
-                                        this.options.uploaderEvent.onSuccess(file, json);
-                                    }
-                                } else {
-                                    const decorations = key.getState(this.editor.state) as DecorationSet;
-                                    let found = decorations.find(void 0, void 0, spec => spec.id == id)
+                                      // 删除刚刚插入的图片节点
                                     view.dispatch(view.state.tr
-                                        .insert(found[0].from, schema.nodes.image.create({
-                                            src: json.data.src,
-                                            alt: json.data.alt,
-                                        }))
-                                        .setMeta(actionKey, {type: "remove", id}));
+                                        .delete(found[0].from, found[0].from + 1)
+                                        .setMeta(actionKey, { type: "remove", id })
+                                    );
                                 }
                                 
                             } else {
@@ -259,7 +262,7 @@ export const ImageExt = Image.extend<ImageOptions>({
                             const items = Array.from(event.clipboardData?.items || []);
                             for (const item of items) {
                                 if (item.type.indexOf("image") === 0) {
-                                    // event.preventDefault();
+                                    event.preventDefault();
                                     const file = item.getAsFile();
                                     if (file) {
                                         this.editor.commands.uploadImage(file, 'paste');
