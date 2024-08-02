@@ -43,6 +43,10 @@ export class LinkBubbleMenu extends AbstractBubbleMenu {
                 <option value="_blank">${t("link-open-blank")}</option>
             </select>
             </div>
+            <div style="width: 250px;margin-top: 10px">${t("link-description")}</div>
+                <div style="width: 250px">
+                <input type="text" id="description" style="width: 250px">
+           </div>
         `);
 
         popover.onConfirmClick((instance) => {
@@ -59,12 +63,45 @@ export class LinkBubbleMenu extends AbstractBubbleMenu {
                 target = null;
             }
 
-            this.editor?.chain().focus().extendMarkRange("link")
-                .setLink({
-                    href,
-                    target,
-                    rel: null,
-                }).run()
+            
+            const description  = (instance.popper.querySelector("#description") as HTMLInputElement).value
+            // if (description.trim() === "") {
+            //     this.editor?.chain().focus().extendMarkRange('link')
+            //     .unsetLink()
+            //     .run()
+            //     return;
+            // }
+
+            let linkText = "";
+
+            if (this.editor && this.editor.view ) {
+                const { state } = this.editor.view;
+                const { selection } = state;
+                const linkMark = state.schema.marks.link;
+
+                // 遍历选区中的所有节点，查找包含链接标记的文本
+                state.doc.nodesBetween(selection.from - 1, selection.to + 1, (node) => {
+                    if (node.isText && node.marks.some(mark => mark.type === linkMark)) {
+                        linkText += node.text;
+                    }
+                });
+            }
+            // this.editor?.chain().focus().extendMarkRange("link")
+            //     .setLink({
+            //         href,
+            //         target,
+            //         rel: null,
+            //     })
+            //     .insertContent(description ?? linkText) // 将描述的内容替换原内容
+            //     .run()
+             // 如果 description 为空，保持原链接文本
+            // const newText = description.trim() === "" ? linkText : description;
+
+            // // 删除当前选区内容
+            // const tr = state.tr.delete(selection.from, selection.to);
+            // // 插入新内容并添加链接属性
+            // tr.insertText(newText, selection.from);
+            // tr.addMark(selection.from, selection.from + newText.length, linkMark.create({ href, target, rel: null }));
         });
 
 
@@ -75,6 +112,28 @@ export class LinkBubbleMenu extends AbstractBubbleMenu {
             }
             if (attrs && attrs.target) {
                 (instance.popper.querySelector("#target") as HTMLInputElement).value = attrs.target;
+            }
+            // 确保存在链接标记
+            if (attrs && attrs.href && this.editor) {
+                const { state } = this.editor.view;
+                const { selection } = state;
+                const linkMark = state.schema.marks.link;
+                let linkText = "";
+
+                // 遍历选区中的所有节点，查找包含链接标记的文本
+                state.doc.nodesBetween(selection.from - 1, selection.to + 1, (node) => {
+                    if (node.isText && node.marks.some(mark => mark.type === linkMark)) {
+                        linkText += node.text;
+                    }
+                });
+
+                // 填充链接地址和打开方式
+                (instance.popper.querySelector("#href") as HTMLInputElement).value = attrs.href;
+                if (attrs.target) {
+                    (instance.popper.querySelector("#target") as HTMLInputElement).value = attrs.target;
+                }
+                // 填充链接描述
+                (instance.popper.querySelector("#description") as HTMLInputElement).value = linkText;
             }
         })
 

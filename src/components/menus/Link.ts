@@ -31,6 +31,10 @@ export class Link extends AbstractMenuButton {
                <option value="_blank">${t("link-open-blank")}</option>
             </select>
             </div>
+            <div style="width: 250px;margin-top: 10px">${t("link-description")}</div>
+                <div style="width: 250px">
+                <input type="text" id="description" style="width: 250px">
+            </div>
         `);
 
 
@@ -49,12 +53,36 @@ export class Link extends AbstractMenuButton {
                 target = null;
             }
 
+            const description  = (instance.popper.querySelector("#description") as HTMLInputElement).value
+            if (description.trim() === "") {
+                this.editor?.chain().focus().extendMarkRange('link')
+                .unsetLink()
+                .run()
+                return;
+            }
+
+            let linkText = "";
+
+            if (this.editor && this.editor.view ) {
+                const { state } = this.editor.view;
+                const { selection } = state;
+                const linkMark = state.schema.marks.link;
+
+                // 遍历选区中的所有节点，查找包含链接标记的文本
+                state.doc.nodesBetween(selection.from - 1, selection.to + 1, (node) => {
+                    if (node.isText && node.marks.some(mark => mark.type === linkMark)) {
+                        linkText += node.text;
+                    }
+                });
+            }
             this.editor?.chain().focus().extendMarkRange("link")
                 .setLink({
                     href,
                     target,
                     rel: null,
-                }).run()
+                })
+                .insertContent(description ?? linkText) // 将描述的内容替换原内容
+                .run()
         });
 
         popover.onShow((instance) => {
@@ -68,6 +96,28 @@ export class Link extends AbstractMenuButton {
                 (instance.popper.querySelector("#target") as HTMLInputElement).value = attrs.target;
             }else {
                 (instance.popper.querySelector("#target") as HTMLInputElement).value = "";
+            }
+            if (attrs && attrs.href) {
+                (instance.popper.querySelector("#description") as HTMLInputElement).value = attrs.href;
+            }else {
+                (instance.popper.querySelector("#description") as HTMLInputElement).value ="";
+            }
+            // 确保存在链接标记
+            if (attrs && attrs.href && this.editor) {
+                const { state } = this.editor.view;
+                const { selection } = state;
+                const linkMark = state.schema.marks.link;
+                let linkText = "";
+
+                // 遍历选区中的所有节点，查找包含链接标记的文本
+                state.doc.nodesBetween(selection.from - 1, selection.to + 1, (node) => {
+                    if (node.isText && node.marks.some(mark => mark.type === linkMark)) {
+                        linkText += node.text;
+                    }
+                });
+
+                // 填充链接描述
+                (instance.popper.querySelector("#description") as HTMLInputElement).value = linkText;
             }
         })
 

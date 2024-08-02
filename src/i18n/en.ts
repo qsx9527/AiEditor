@@ -87,6 +87,7 @@ export const en =  {
     "link-address":"Link address",
     "link-open-type":"Open type",
     "link-open-blank":"Blank",
+    "link-description":"Description",
 
     ////font
     "default-font-size":"Size",
