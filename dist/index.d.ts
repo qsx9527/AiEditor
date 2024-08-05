@@ -5,7 +5,7 @@ import { EditorOptions } from '@tiptap/core';
 import { Extensions } from '@tiptap/core';
 import { Fragment } from 'prosemirror-model';
 import { Instance } from 'tippy.js';
-import { JSONContent } from '@tiptap/core';
+import { JSONContent as JSONContent_2 } from '@tiptap/core';
 
 declare class AbstractMenuButton extends HTMLElement implements AiEditorEvent {
     template: string;
@@ -52,7 +52,7 @@ export declare class AiEditor {
     private onCreate;
     private onTransaction;
     getHtml(): string;
-    getJson(): JSONContent;
+    getJson(): JSONContent_2;
     getText(): string;
     getSelectedText(): string;
     getMarkdown(): any;
@@ -67,7 +67,7 @@ export declare class AiEditor {
     blur(): this;
     insert(content: any): this;
     setEditable(editable: boolean): this;
-    setContent(content: string): this;
+    setContent(content: string | JSONContent_2 | JSONContent_2[] | null, contentType: string): this;
     clear(): this;
     isEmpty(): boolean;
     changeLang(lang: string): this;
@@ -288,6 +288,19 @@ export declare class InnerEditor extends Editor {
     parseHtml(html: string): Fragment;
     parseMarkdown(markdown: string): Fragment;
 }
+
+export declare type JSONContent = {
+    type?: string;
+    attrs?: Record<string, any>;
+    content?: JSONContent_2[];
+    marks?: {
+        type: string;
+        attrs?: Record<string, any>;
+        [key: string]: any;
+    }[];
+    text?: string;
+    [key: string]: any;
+};
 
 export declare interface NameAndValue {
     name: string;

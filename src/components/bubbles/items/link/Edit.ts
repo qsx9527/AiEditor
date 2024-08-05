@@ -21,6 +21,10 @@ export const Edit = {
                 <option value="_blank">${t("link-open-blank")}</option>
             </select>
             </div>
+            <div style="width: 250px;margin-top: 10px;">${t("link-description")}</div>
+            <div style="width: 250px;">
+                <input type="text" id="description" style="width: 250px;">
+            </div>
         `);
 
         popover.onConfirmClick((instance) => {
@@ -37,24 +41,39 @@ export const Edit = {
                 target = null;
             }
 
-            editor.innerEditor.chain().focus().extendMarkRange("link")
-                .setLink({
-                    href,
-                    target,
-                    rel: null,
-                }).run()
-        });
+            const description = (instance.popper.querySelector("#description") as HTMLInputElement).value.trim();
+            const linkText = description || href;
+    
 
+            editor.innerEditor.chain().focus().extendMarkRange("link")
+            .setLink({ href, target, rel: null })
+            .insertContent({ type: 'text', text: linkText, marks: [{ type: 'link', attrs: { href, target, rel: null } }] })
+            .run()
+        });
 
         popover.onShow((instance) => {
             const attrs = editor.innerEditor.getAttributes("link");
-            if (attrs && attrs.href) {
-                (instance.popper.querySelector("#href") as HTMLInputElement).value = attrs.href;
-            }
-            if (attrs && attrs.target) {
-                (instance.popper.querySelector("#target") as HTMLInputElement).value = attrs.target;
-            }
-        })
+            (instance.popper.querySelector("#href") as HTMLInputElement).value = attrs?.href || "";
+            (instance.popper.querySelector("#target") as HTMLInputElement).value = attrs?.target || "";
+            (instance.popper.querySelector("#description") as HTMLInputElement).value = getLinkText() || attrs?.href || "";
+        });
+
+        const getLinkText = (): string => {
+            if (!editor.innerEditor) return "";
+
+            const { state } = editor.innerEditor.view;
+            const { selection } = state;
+            const linkMark = state.schema.marks.link;
+            let linkText = "";
+
+            state.doc.nodesBetween(selection.from, selection.to, (node) => {
+                if (node.isText && node.marks.some(mark => mark.type === linkMark)) {
+                    linkText += node.text;
+                }
+            });
+
+            return linkText;
+        };
 
         popover.setTrigger(parentEle.querySelector("#edit")!, "right");
     }

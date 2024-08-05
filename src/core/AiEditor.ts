@@ -422,9 +422,22 @@ export class AiEditor {
         return this;
     }
 
-    setContent(content: string | JSONContent | JSONContent[] | null) {
+    setContent(content: string | JSONContent | JSONContent[], contentType: string): this {
         // this.focus().clear().insert(content); 原实现方法，导致空表格不能再次打开，应是空表格不能用insertContent插入
+
+        if (typeof content === 'string' && contentType === 'html') {
+            // // 打印替换前的content
+            // console.log('Before replace:', content);
+
+            // 如果是HTML格式，替换换行符为 <br>
+            content = content.replace(/\n/g, '<br>');
+
+            // // 打印替换后的content
+            // console.log('After replace:', content);
+        }
+        // 清空编辑器并插入处理后的内容
         this.clear().innerEditor.commands.setContent(content);
+
         return this;
     }
 
