@@ -388,7 +388,30 @@ export const CodeBlockExt = CodeBlockLowlight.extend<MyCodeBlockLowlightOptions>
                 copyButton?.addEventListener('click', () => {
                     const codeContent = container?.querySelector('code')?.textContent
                     if (codeContent) {
-                        navigator.clipboard.writeText(codeContent)
+                        if (navigator.clipboard && navigator.clipboard.writeText) {
+                            navigator.clipboard.writeText(codeContent)
+                                .then(() => {
+                                    console.log('Text copied to clipboard')
+                                })
+                                .catch(err => {
+                                    console.error('Could not copy text: ', err)
+                                })
+                        } else {
+                            // 旧版的降级处理方法
+                            const textarea = document.createElement('textarea')
+                            textarea.value = codeContent
+                            document.body.appendChild(textarea)
+                            textarea.select()
+                            try {
+                                document.execCommand('copy')
+                                console.log(`document.execCommand('copy') 代码块内容复制成功`)
+                            } catch (err) {
+                                console.error('Fallback method: Could not copy text: ', err)
+                            }
+                            document.body.removeChild(textarea)
+                        }
+                    } else {
+                        console.warn('Code content is empty')
                     }
                 })
                 
