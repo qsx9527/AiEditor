@@ -67,7 +67,7 @@ export declare class AiEditor {
     blur(): this;
     insert(content: any): this;
     setEditable(editable: boolean): this;
-    setContent(content: string | JSONContent_2 | JSONContent_2[] | null, contentType: string): this;
+    setContent(content: string | JSONContent_2 | JSONContent_2[], contentType: string): this;
     clear(): this;
     isEmpty(): boolean;
     changeLang(lang: string): this;

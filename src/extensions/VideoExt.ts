@@ -163,31 +163,39 @@ export const VideoExt = Node.create<VideoOptions>({
 
     addNodeView() {
         return (e) => {
-            if (!this.editor.isEditable) {
-                return {}
+            const container = document.createElement('div');
+            const { src, width, align } = e.node.attrs;
+            container.classList.add(`align-${align}`);
+    
+            if (this.editor.isEditable) {
+                container.innerHTML = `
+                    <div class="aie-resize-wrapper">
+                        <div class="aie-resize">
+                            <div class="aie-resize-btn-top-left" data-position="left" draggable="true"></div>
+                            <div class="aie-resize-btn-top-right" data-position="right" draggable="true"></div>
+                            <div class="aie-resize-btn-bottom-left" data-position="left" draggable="true"></div>
+                            <div class="aie-resize-btn-bottom-right" data-position="right" draggable="true"></div>
+                        </div>
+                        <video controls="controls" width="${width}" class="resize-obj">
+                            <source src="${src}">
+                        </video>
+                    </div>
+                `;
+                resize(container, e.editor.view.dom, (attrs) => e.editor.commands.updateAttributes("video", attrs));
+            } else {
+                container.innerHTML = `
+                    <video controls="controls" width="${width}" class="align-${align}">
+                        <source src="${src}">
+                    </video>
+                `;
             }
-            const container = document.createElement('div')
-            const {src, width, align} = e.node.attrs;
-            container.classList.add(`align-${align}`)
-            container.innerHTML = `
-                  <div class="aie-resize-wrapper">
-                      <div class="aie-resize">
-                          <div class="aie-resize-btn-top-left" data-position="left" draggable="true"></div>
-                          <div class="aie-resize-btn-top-right" data-position="right" draggable="true"></div>
-                          <div class="aie-resize-btn-bottom-left" data-position="left" draggable="true"></div>
-                          <div class="aie-resize-btn-bottom-right" data-position="right" draggable="true"></div>
-                      </div>
-                      <video controls="controls" width="${width}" class="resize-obj">
-                          <source src="${src}">
-                      </video>
-                  </div>
-                `
-            resize(container, e.editor.view.dom, (attrs) => e.editor.commands.updateAttributes("video", attrs));
+    
             return {
                 dom: container,
-            }
+            };
         }
     },
+    
 
     addInputRules() {
         return [
