@@ -144,8 +144,31 @@ export const ImageExt = Image.extend<ImageOptions>({
                                 }
                             }
 
+                            // if (json.errorCode === 0 && json.data && json.data.src) {
+                            //     console.log('图片上传')
+                            //     const decorations = key.getState(this.editor.state) as DecorationSet;
+                            //     let found = decorations.find(void 0, void 0, spec => spec.id == id)
+                            //     view.dispatch(view.state.tr
+                            //         .insert(found[0].from, schema.nodes.image.create({
+                            //             src: json.data.src,
+                            //             alt: json.data.alt,
+                            //         }))
+                            //         .setMeta(actionKey, {type: "remove", id}));
+                            //     if (issue == 'paste') {
+                            //           // 删除刚刚插入的图片节点
+                            //         view.dispatch(view.state.tr
+                            //             .delete(found[0].from, found[0].from + 1)
+                            //             .setMeta(actionKey, { type: "remove", id })
+                            //         );
+                            //     }
+                                
+                            // } else {
+                            //     view.dispatch(tr.setMeta(actionKey, {type: "remove", id}));
+                            //     if (this.options.uploaderEvent && this.options.uploaderEvent.onFailed) {
+                            //         this.options.uploaderEvent.onFailed(file, json);
+                            //     }
+                            // }
                             if (json.errorCode === 0 && json.data && json.data.src) {
-                                console.log('图片上传')
                                 const decorations = key.getState(this.editor.state) as DecorationSet;
                                 let found = decorations.find(void 0, void 0, spec => spec.id == id)
                                 view.dispatch(view.state.tr
@@ -154,14 +177,6 @@ export const ImageExt = Image.extend<ImageOptions>({
                                         alt: json.data.alt,
                                     }))
                                     .setMeta(actionKey, {type: "remove", id}));
-                                if (issue == 'paste') {
-                                      // 删除刚刚插入的图片节点
-                                    view.dispatch(view.state.tr
-                                        .delete(found[0].from, found[0].from + 1)
-                                        .setMeta(actionKey, { type: "remove", id })
-                                    );
-                                }
-                                
                             } else {
                                 view.dispatch(tr.setMeta(actionKey, {type: "remove", id}));
                                 if (this.options.uploaderEvent && this.options.uploaderEvent.onFailed) {
@@ -266,15 +281,18 @@ export const ImageExt = Image.extend<ImageOptions>({
 
                         handlePaste: (_, event) => {
                             const items = Array.from(event.clipboardData?.items || []);
+                            let isImagePasted = false;
                             for (const item of items) {
                                 if (item.type.indexOf("image") === 0) {
-                                    event.preventDefault();
                                     const file = item.getAsFile();
                                     if (file) {
+                                        event.preventDefault();
+                                        isImagePasted = true;
                                         this.editor.commands.uploadImage(file, 'paste');
                                     }
                                 }
                             }
+                            return isImagePasted;
                         },
 
                         handleDOMEvents: {
