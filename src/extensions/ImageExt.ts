@@ -104,8 +104,8 @@ export const ImageExt = Image.extend<ImageOptions>({
         addCommands() {
             return {
                 ...this.parent?.(),
-
-                uploadImage: (file: File, issue  = '') => () => {
+                // uploadImage: (file: File, issue  = '') => () => {
+                uploadImage: (file: File) => () => {
                     const headers = (typeof this.options.uploadHeaders === "object") ? this.options.uploadHeaders :
                         ((typeof this.options.uploadHeaders === "function") ? this.options.uploadHeaders() : {});
 
